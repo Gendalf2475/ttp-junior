@@ -1,0 +1,8 @@
+aiogram
+SQLAlchemy
+python-dotenv
+aiomysql
+cryptography
+greenlet
+fastapi
+uvicorn
