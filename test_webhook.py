@@ -2,7 +2,7 @@ import requests
 import json
 import random
 
-url = "http://155.212.169.230:8000/webhook"
+url = "http://194.32.248.19:8000/webhook"
 
 # Генерация случайных данных для теста
 random_id = random.randint(100, 999)
