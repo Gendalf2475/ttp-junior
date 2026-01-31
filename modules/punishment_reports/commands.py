@@ -1,22 +1,39 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from aiogram import types
-from aiogram.dispatcher import Dispatcher
+from aiogram import Router
+from aiogram.filters import Command
+from aiogram.types import Message
 
+from config import PUNISHMENT_REPORTS_ENABLED
 from modules.punishment_reports.report import send_daily_reports
+
 
 MOSCOW_TZ = ZoneInfo("Europe/Moscow")
 
+router = Router()
 
-async def report_today_command(message: types.Message):
+
+@router.message(Command("report_today"))
+async def report_today_command(message: Message):
+    if not PUNISHMENT_REPORTS_ENABLED:
+        return
+
+    # Можно ограничить только администраторами чата
+    if message.chat.type in ("group", "supergroup"):
+        member = await message.bot.get_chat_member(message.chat.id, message.from_user.id)
+        if member.status not in ("administrator", "creator"):
+            return
+
     today = datetime.now(MOSCOW_TZ).date().isoformat()
     await send_daily_reports(message.bot, today)
 
 
-def register_punishment_commands(dp: Dispatcher):
-    dp.register_message_handler(
-        report_today_command,
-        commands=["report_today"],
-        is_chat_admin=True  # чтобы не спамили все подряд
-    )
+def register_punishment_commands(dp):
+    """
+    Подключаем router с командами к Dispatcher (aiogram 3)
+    """
+    if not PUNISHMENT_REPORTS_ENABLED:
+        return
+
+    dp.include_router(router)

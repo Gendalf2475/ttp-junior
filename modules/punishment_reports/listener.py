@@ -1,5 +1,5 @@
-from aiogram import types
-from aiogram.dispatcher import Dispatcher
+from aiogram import Router
+from aiogram.types import Message
 
 from config import (
     PUNISHMENT_REPORTS_ENABLED,
@@ -11,13 +11,19 @@ from modules.punishment_reports.parser import parse_punishment_message
 from modules.punishment_reports.storage import save_punishment
 
 
-# usernames ботов, которые присылают наказания
+# usernames ботов, которые присылают наказания (БЕЗ @)
 ALLOWED_SOURCES = {
     "ttpchatbot",
 }
 
+router = Router()
 
-async def punishment_listener(message: types.Message):
+
+@router.message()
+async def punishment_listener(message: Message):
+    if not PUNISHMENT_REPORTS_ENABLED:
+        return
+
     # --- Фильтры безопасности ---
     if not message.is_topic_message:
         return
@@ -50,11 +56,11 @@ async def punishment_listener(message: types.Message):
     )
 
 
-def register_punishment_listener(dp: Dispatcher):
+def register_punishment_listener(dp):
+    """
+    Подключаем router к Dispatcher (aiogram 3)
+    """
     if not PUNISHMENT_REPORTS_ENABLED:
         return
 
-    dp.register_message_handler(
-        punishment_listener,
-        content_types=types.ContentType.TEXT,
-    )
+    dp.include_router(router)
