@@ -2,7 +2,7 @@ from typing import Dict
 
 from aiogram import Bot
 
-from config import PUNISHMENT_REPORT_TOPIC_ID
+from config import PUNISHMENT_CHAT_ID, PUNISHMENT_REPORT_TOPIC_ID
 from modules.punishment_reports.storage import get_daily_summary
 
 
@@ -75,6 +75,7 @@ async def send_daily_reports(bot: Bot, target_date: str):
             continue
 
         await bot.send_message(
-            chat_id=PUNISHMENT_REPORT_TOPIC_ID,
+            chat_id=PUNISHMENT_CHAT_ID,
+            message_thread_id=PUNISHMENT_REPORT_TOPIC_ID,
             text=text
         )
